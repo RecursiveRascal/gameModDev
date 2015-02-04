@@ -794,6 +794,16 @@ BLASTER / HYPERBLASTER
 ======================================================================
 */
 
+/* This is where I am going to insert my mod for the hyperblaster.
+	This code modification is Assignment #1 - IT 266
+	I plan on making the hyper blaster shoot out multiple bullets at once
+	but they will shoot out extremely slowly.
+
+	I am using the tutorial posted on our links page to mod the number of rounds fired and
+	I will combine this with the mod we did in class to make the pistol shoot slowly.
+
+	Any code that I modify from the original will be commented on with my initials (YK)
+*/
 void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, int effect)
 {
 	vec3_t	forward, right;
@@ -828,12 +838,28 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 void Weapon_Blaster_Fire (edict_t *ent)
 {
 	int		damage;
+	short i;
+
+	//My changes here - Based off of the mod by sumfuka to hyperblaster
+
+	vec3_t tempVec;
 
 	if (deathmatch->value)
 		damage = 15;
 	else
 		damage = 10;
 	Blaster_Fire (ent, vec3_origin, damage, false, EF_BLASTER);
+
+	//SumFuka added 2 new bolts to the blaster fire. I want to try and add 4
+
+	for(i = 0; i <= 5; ++i){
+
+		VectorSet(tempVec, 0, (8 - (i * 4)), 0); 
+		VectorAdd(tempVec, vec3_origin, tempVec);
+		Blaster_Fire(ent, tempVec, damage, false, EF_BLASTER);
+	}
+
+
 	ent->client->ps.gunframe++;
 }
 
@@ -871,11 +897,38 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 			NoAmmoWeaponChange (ent);
 		}
 		else
-		{
+		{	
+			//new code starts here (yk)
+			
+			if((ent->client->ps.gunframe == 6) || (ent->client->ps.gunframe == 9))
+				effect = EF_HYPERBLASTER;
+			else
+				effect = 0;
+
+			//change the offset radius to 16 (trying this instead of 6 in the tutorial), spreads the bolts out a bit
+
 			rotation = (ent->client->ps.gunframe - 5) * 2*M_PI/6;
-			offset[0] = -4 * sin(rotation);
-			offset[1] = 0;
-			offset[2] = 4 * cos(rotation);
+
+			offset[0] = 0;
+			// in tutoria this is 8 and -8
+			offset[1] = -16 * sin(rotation);
+			offset[2] = 16 * cos(rotation);
+			Blaster_Fire(ent, offset, 20, true, effect);
+
+			rotation = (ent->client->ps.gunframe -5) * 2*M_PI/6 + M_PI*2.0/3.0;
+			offset[0] = 0;
+			offset[1] = -16 *sin(rotation);
+			offset[2] = 16 *cos(rotation);
+			Blaster_Fire(ent, offset, 20, true, effect);
+
+			rotation = (ent->client->ps.gunframe - 5) * 2*M_PI/6 + M_PI*4.0/3.0;
+			offset[0] = 0;
+			offset[1] = -16 *sin(rotation);
+			offset[2] = 16 *cos(rotation);
+			Blaster_Fire(ent, offset, 20, true, effect);
+			ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity * 3;
+
+		
 
 			if ((ent->client->ps.gunframe == 6) || (ent->client->ps.gunframe == 9))
 				effect = EF_HYPERBLASTER;
