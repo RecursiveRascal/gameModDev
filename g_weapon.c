@@ -325,7 +325,7 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 
 //new function created in class on 2.4.15
 
-void blaster_think(edict_t *self){
+void blaster_think(edict_t* self){
 
 	vec3_t dir;
 	dir[0] = crandom();
@@ -364,7 +364,7 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	bolt->s.sound = gi.soundindex ("misc/lasfly.wav");
 	bolt->owner = self;
 	bolt->touch = blaster_touch;
-	bolt->nextthink = level.time + 1;
+	bolt->nextthink = level.time;
 	bolt->think = blaster_think;
 	bolt->dmg = damage;
 	bolt->classname = "bolt";
